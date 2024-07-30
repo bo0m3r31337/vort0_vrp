@@ -26,10 +26,16 @@ type Driver struct {
 	Loads         []Load
 	Time_left     float64
 	Curr_Position Point
+	Route         []int
 }
 
-func (d *Driver) dock() {
-	d.Time_left += Distance_from_depot(d.Curr_Position)
+func Init_Driver() Driver {
+	return Driver{
+		Loads:         make([]Load, 0),
+		Time_left:     0.0,
+		Curr_Position: Home_Point,
+		Route:         make([]int, 0),
+	}
 }
 
 func (f Fleet) get_cost() float64 {
@@ -40,7 +46,7 @@ func (f Fleet) Print() {
 	for i := 0; i <= len(f.Drivers)-1; i++ {
 		fmt.Print("[")
 		for j := 0; j <= len(f.Drivers[i].Loads)-1; j++ {
-			fmt.Print(f.Drivers[i].Loads[j].Number)
+			fmt.Print(f.Drivers[i].Loads[j].Number + 1)
 			if j != len(f.Drivers[i].Loads)-1 {
 				fmt.Print(",")
 			}

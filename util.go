@@ -1,72 +1,50 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
-	"math"
-	"os"
-	"strings"
 )
 
 /*
-Get_loads
-reads in the file and creates a slice of loads to carry within the 12 hour period
+	Init_Matrix
+
+initializes distance matrix
 */
-func Get_loads(path string) {
-	file, err := os.Open(path)
-	if err != nil {
-		fmt.Println("error opening the file = ", err)
+func Init_Matrix() {
+	Distance_Matrix = make([][]float64, len(Loads))
+	for i := 0; i <= len(Loads)-1; i++ {
+		Distance_Matrix[i] = make([]float64, len(Loads))
 	}
-	scanner := bufio.NewScanner(file)
-	//burn first line
-	scanner.Scan()
-	// fmt.Println("before load ingestion = , ", scanner.Text())
-	for scanner.Scan() {
-		arr := strings.Split(scanner.Text(), " ")
-		pickup := Construct_Point(arr[1])
-		dropoff := Construct_Point(arr[2])
-		number := arr[0]
-		load := Construct_Load(number, pickup, dropoff)
-		Loads = append(Loads, &load)
-		Armada.Total_Minutes += load.Distance
-		// fmt.Println("load number = ", load.Number)
-		// fmt.Println("distance from depot = ", load.Distance_from_depot)
-		// fmt.Println("distance from depot = ", Distance_from_depot(load.Dropoff))
-		// fmt.Println("load distance = ", load.Distance)
-		// Armada.Total_Minutes += Distance_from_depot(load.Dropoff)
-	}
-	// initial fleet size
-	Fleet_Size = math.Ceil(Armada.Total_Minutes / 720.00)
-	// fmt.Println("total minutes = ", Armada.Total_Minutes)
-	// fmt.Println("initial fleet size = ", Fleet_Size)
-	// fmt.Println("amount of loads = ", len(Loads))
-	// fmt.Println("max loads per driver = ", math.Ceil(float64(len(Loads))/Fleet_Size))
-	Initial_Proxy_Sweep()
-	for len(Loads) != 0 {
-		drivers_maxed := Armada.Sweep_Proxy()
-		// fmt.Println("drivers maxed out of function = ", drivers_maxed)
-		if drivers_maxed != 0 {
-			break
-		}
-	}
-	Armada.Return_Home()
-	// fmt.Println("cost = ", Armada.get_cost())
-	// for j := 0; j <= len(Armada.Drivers)-1; j++ {
-	// 	// fmt.Println("driver loads length = ", len(Armada.Drivers[j].Loads))
-	// 	fmt.Print("drivers time driven = ", Armada.Drivers[j].Time_left)
-	// 	// for i := 0; i <= len(Armada.Drivers[j].Loads)-1; i++ {
-	// 	// 	fmt.Print("d.loads = ", Armada.Drivers[j].Loads[i].Number+"\n")
-	// 	// 	fmt.Print("\n")
-	// 	// }
-	// 	// fmt.Println("load number ", d.Loads[i].Number)
-	// 	// fmt.Println("distance from depot = ", d.Loads[0].Distance_from_depot)
-	// }
 }
 
-// func Deploy_Driver() {
+/*
+	Populate_Matrix
 
-// }
+Populates the slice of loads with a slice of distances of their relative dropoffs to pickups
+*/
+func Populate_Matrix() {
+	// var waitgroup sync.WaitGroup
 
+	for i := 0; i <= len(Loads)-1; i++ {
+		Loads[i].Populate_Load_distances()
+	}
+	// var waitgroup sync.WaitGroup
+	// populate_cell := func(load_num_init, load_num_dest int, init, dest Load) {
+	// 	Distance_Matrix[load_num_init][load_num_dest] = Distance_between_points(init.Dropoff, dest.Pickup)
+	// 	Distance_Matrix[load_num_dest][load_num_init] = Distance_between_points(dest.Dropoff, init.Pickup)
+	// 	defer waitgroup.Done()
+	// }
+	// for i := 0; i <= len(Loads)-1; i++ {
+	// 	for j := i; j <= len(Loads)-1; j++ {
+	// 		if i == j {
+	// 			continue
+	// 		}
+	// 		waitgroup.Add(1)
+	// 		go populate_cell(Loads[i].Number, Loads[j].Number, *Loads[i], *Loads[j])
+	// 	}
+	// }
+	// waitgroup.Wait()
+	// fmt.Println(Distance_Matrix)
+}
 func Initial_Proxy_Sweep() {
 	for i := 0; i <= int(Fleet_Size)+3; i++ {
 		driver := Driver{
@@ -79,9 +57,9 @@ func Initial_Proxy_Sweep() {
 		driver.Curr_Position = driver.Loads[0].Dropoff
 		driver.Time_left += driver.Loads[0].Distance
 		driver.Time_left += driver.Loads[0].Distance_from_depot
-		if driver.Time_left+Distance_from_depot(next_load.Dropoff) > 720 {
-			// fmt.Println("driver is maxed in init")
-		}
+		// if driver.Time_left+Distance_from_depot(next_load.Dropoff) > 720 {
+		// 	// fmt.Println("driver is maxed in init")
+		// }
 		// fmt.Println("initial driver time = ", driver.Time_left)
 		Remove_Load(load_index)
 		Armada.Drivers = append(Armada.Drivers, driver)
@@ -148,4 +126,32 @@ func return_closest_load(current_position Point) (Load, int) {
 	// Loads = append(Loads[:load_index], Loads[load_index+1:]...)
 	// fmt.Println("length of loads = ", len(Loads))
 	return load_to_return, load_index
+}
+
+func Find_closest_load_pickup_from_dropoff_of(load_num int, distance_already_traveled float64) (int, float64) {
+	fmt.Println("load num = ", load_num)
+	fmt.Println("distance already travelled = ", distance_already_traveled)
+	closest_next_pickup := -1
+	var min_dist float64
+	init := true
+	for i := 0; i <= len(Distance_Matrix[load_num])-1; i++ {
+		if Distance_Matrix[load_num][i] == 0 {
+			continue
+		}
+		if init {
+			min_dist = Distance_Matrix[load_num][i]
+			init = false
+			closest_next_pickup = i
+			continue
+		}
+		if Distance_Matrix[load_num][i] < min_dist && Distance_Matrix[load_num][i] > 0 && distance_already_traveled+Distance_from_depot(*&Loads[load_num].Dropoff) < 720 {
+			min_dist = Distance_Matrix[load_num][i]
+			closest_next_pickup = i
+		}
+	}
+	if closest_next_pickup == -1 {
+		return -1, 0.0
+	}
+	Distance_Matrix[load_num][closest_next_pickup] = -1.0
+	return closest_next_pickup, min_dist
 }
