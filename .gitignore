@@ -23,3 +23,5 @@ go.work.sum
 
 # ignore text files
 *.txt
+
+*.py
