@@ -16,7 +16,7 @@ VRP solution for Vorto coding challenge
 * `go build`
 
 ### Run MAC
-* `python <your_python_script.py> --cmd m.app --problemDir <path_directory_of_problems>`
+* `python <your_python_script.py> --cmd ./m.app --problemDir <path_directory_of_problems>`
 
 ### Run WIN
 * `python <your_python_script.py> --cmd m.exe --problemDir <path_directory_of_problems>`
