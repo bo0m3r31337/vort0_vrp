@@ -22,6 +22,7 @@ go.work
 go.work.sum
 
 # ignore text files
-*.txt
+# *.txt
+problem*.txt
 
 *.py

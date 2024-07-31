@@ -43,16 +43,8 @@ func Construct_Point(vals string) Point {
 		point.Quadrant = 4
 	}
 	point.Distance_from_home = Distance_from_depot(point)
-	// point.print_point()
 	return point
 }
-
-// func (p Point) print_point() {
-// 	fmt.Println("x =", p.x)
-// 	fmt.Println("y = ", p.y)
-// 	fmt.Println("quadrant = ", p.Quadrant)
-// 	fmt.Println("distance from home = ", p.Distance_from_home)
-// }
 
 func (p Point) String() string {
 	return fmt.Sprintf("x = %f\ny= %f\n", p.x, p.y)

@@ -1,0 +1,4 @@
+https://en.wikipedia.org/wiki/Vehicle_routing_problem
+https://fareye.com/resources/blogs/vehicle-routing-problem-how-to-solve-it
+https://web.mit.edu/urban_or_book/www/book/chapter6/6.4.12.html
+https://www.sciencedirect.com/science/article/pii/S030505481300021X
