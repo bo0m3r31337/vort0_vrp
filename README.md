@@ -7,6 +7,7 @@ VRP solution for Vorto coding challenge
 * `go install`
 * `go mod tidy`
 * `go build`
+### Mac
 * `python <yourpythonScript.py> --cmd m.app --problemDir <directory_of_problems>`
 
 ## low cost focus

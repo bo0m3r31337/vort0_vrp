@@ -27,6 +27,21 @@ type Load struct {
 	Completed               bool
 }
 
+type Load_Schedule []Load
+
+func (l Load_Schedule) Load_Cost() float64 {
+	cost := 500.0
+	cost += l[0].Distance_from_depot
+	for i := 0; i <= len(l)-2; i++ {
+		cost += l[i].Distance
+		cost += l[i].Dropoff_to_pickup_dists[l[i+1].Number]
+	}
+	// cost += l[]
+	cost += l[len(l)-1].Return_distance + l[len(l)-1].Distance
+	// fmt.Println("cost for driver = ", cost)
+	return cost
+}
+
 /*
 Construct_Load
 args:
