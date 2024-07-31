@@ -8,7 +8,7 @@ VRP solution for Vorto coding challenge
 * `go mod tidy`
 * `go run main.go load.go point.go driver.go util.go insert.go <path to file>`
 
-### RUN
+## Run Binary
 * `git clone https://github.com/bo0m3r31337/vort0_vrp.git`
 * `cd vort0_vrp`
 * `go install`
@@ -21,7 +21,7 @@ VRP solution for Vorto coding challenge
 ### Run WIN
 * `python <your_python_script.py> --cmd m.exe --problemDir <path_directory_of_problems>`
 
-### Run WIN
+### Run Linux
 * `python <your_python_script.py> --cmd ./m --problemDir <path_directory_of_problems>`
 
 ## low cost focus
