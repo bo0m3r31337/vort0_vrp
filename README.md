@@ -8,7 +8,7 @@ VRP solution for Vorto coding challenge
 * `go mod tidy`
 * `go run main.go load.go point.go driver.go util.go insert.go <path to file>`
 
-## Run Binary
+## Run Binary with python script
 * `git clone https://github.com/bo0m3r31337/vort0_vrp.git`
 * `cd vort0_vrp`
 * `go install`
