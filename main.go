@@ -47,7 +47,7 @@ func Generate_Route_for_New_Driver() (Driver, int) {
 	driver := Init_Driver()
 	// find first load
 	init_load, _ := find_closest_load_from_depot()
-	// if no loads exist then
+	// if no loads exist then return -1
 	if init_load == -1 {
 		return driver, -1
 	}
@@ -56,9 +56,9 @@ func Generate_Route_for_New_Driver() (Driver, int) {
 	driver.Time_left += Loads[init_load].Distance_from_depot + Loads[init_load].Distance
 	Loads[init_load].Complete()
 	driver.Curr_Position = Loads[init_load].Dropoff
-	// if driver and take another load get next load
+	//take another load
 	next_load, distance_to_pickup := driver.Loads[len(driver.Loads)-1].Return_min_Load_Not_Completed(driver.Time_left)
-	//if no next load is avaiable to return
+	//if no next load is avaiable to return with the time limit the return the driver to the depot
 	if next_load == -1 {
 		driver.Time_left += driver.Loads[len(driver.Loads)-1].Return_distance
 		return driver, 0
@@ -76,15 +76,15 @@ func Generate_Route_for_New_Driver() (Driver, int) {
 			break
 		}
 	}
-	// return driver to depot
+	// check if the time left and return of current position is less than 12*60
 	if driver.Time_left+driver.Loads[len(driver.Loads)-1].Return_distance > 720.0 {
-		//remove the load from schedule
+		//if so then remove the load from schedule
 		Loads[driver.Loads[len(driver.Loads)-1].Number].UnComplete()
 		if len(driver.Loads) > 0 {
 			driver.Loads = driver.Loads[:len(driver.Loads)-1]
 		}
 	}
-	// return driver to depot
+	//other wise return driver to depot
 	driver.Time_left += driver.Loads[len(driver.Loads)-1].Return_distance
 	return driver, 0
 }
