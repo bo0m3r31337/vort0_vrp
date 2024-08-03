@@ -27,10 +27,19 @@ type Load struct {
 	Completed               bool
 }
 
+func (l Load_Schedule) String() string {
+	string_to_return := ""
+	for i := 0; i <= len(l)-1; i++ {
+		string_to_return += strconv.Itoa(l[i].Number) + " "
+	}
+	return string_to_return
+	// return string(l.Number)
+}
+
 type Load_Schedule []Load
 
 func (l Load_Schedule) Load_Cost() float64 {
-	cost := 500.0
+	cost := 0.0
 	cost += l[0].Distance_from_depot
 	for i := 0; i <= len(l)-2; i++ {
 		cost += l[i].Distance
@@ -100,12 +109,12 @@ func (l *Load) Return_min_Load_Not_Completed(driven_minutes float64) (int, float
 		if Loads[i].Completed {
 			continue
 		}
-		if min_dist < 0 && !Loads[i].Completed && driven_minutes+Loads[i].Return_distance+l.Dropoff_to_pickup_dists[i] < 720 {
+		if min_dist < 0 && !Loads[i].Completed && driven_minutes+Loads[i].Return_distance+l.Dropoff_to_pickup_dists[i]+l.Distance < 720 {
 			min_dist = l.Dropoff_to_pickup_dists[i]
 			load_num = i
 			continue
 		}
-		if l.Dropoff_to_pickup_dists[i] < min_dist && !Loads[i].Completed && driven_minutes+Loads[i].Return_distance+l.Dropoff_to_pickup_dists[i] < 720 {
+		if l.Dropoff_to_pickup_dists[i] < min_dist && !Loads[i].Completed && driven_minutes+Loads[i].Return_distance+l.Dropoff_to_pickup_dists[i]+l.Distance < 720 {
 			min_dist = l.Dropoff_to_pickup_dists[i]
 			load_num = i
 		}

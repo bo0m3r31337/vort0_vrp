@@ -40,25 +40,31 @@ func Reduce_Drivers() bool {
 
 func (f Fleet) Permute_Schedule() {
 	for i := 0; i <= f.Drivers.Len()-1; i++ {
+		// fmt.Println("driver# = ", i)
 		f.Drivers[i] = f.Drivers[i].Swap_Schedule()
 	}
 }
 
 func (d Driver) Swap_Schedule() Driver {
-	initial_cost := d.Get_Cost()
-	prev_cost := d.Get_Cost()
+	initial_cost := d.Loads.Load_Cost()
+	// fmt.Println(" init cost ", initial_cost)
+	prev_cost := d.Loads.Load_Cost()
+	// fmt.Println(" previous cost ", prev_cost)
 	for i := 0; i <= len(d.Loads)-1; i++ {
 		vary_loads := make(Load_Schedule, len(d.Loads))
 		copy(vary_loads, d.Loads)
 		for j := 0; j <= len(d.Loads)-1; j++ {
 			vary_loads[i], vary_loads[j] = vary_loads[j], vary_loads[i]
+			// fmt.Print("vary loads cost = ", vary_loads.Load_Cost())
 			if vary_loads.Load_Cost() < initial_cost && vary_loads.Load_Cost() < prev_cost {
 				// fmt.Println("cheaper arrangment")
+				// fmt.Println("less than = ", vary_loads.Load_Cost())
 				prev_cost = vary_loads.Load_Cost()
 				copy(d.Loads, vary_loads)
 			}
 		}
 	}
+	// fmt.Println("final cost stored = ", d.Loads.Load_Cost())
 	return d
 }
 
@@ -87,7 +93,7 @@ func (d Drivers) Remove_last() Drivers {
 }
 
 func (d Driver) Get_Cost() float64 {
-	cost := 500.0
+	cost := 0.0
 	cost += d.Loads[0].Distance_from_depot
 	for i := 0; i <= len(d.Loads)-2; i++ {
 		cost += d.Loads[i].Distance
@@ -95,9 +101,9 @@ func (d Driver) Get_Cost() float64 {
 	}
 	cost += d.Loads[len(d.Loads)-1].Return_distance + d.Loads[len(d.Loads)-1].Distance
 	// fmt.Println("cost for driver = ", cost)
-	if cost == d.Time_left+d.Loads[len(d.Loads)-1].Return_distance {
-		fmt.Println("cost and time left are equal")
-	}
+	// if cost == d.Time_left+d.Loads[len(d.Loads)-1].Return_distance {
+	// 	// fmt.Println("cost and time left are equal")
+	// }
 	// fmt.Println("cost = ", cost)
 	// fmt.Println("time left = ", d.Time_left+d.Loads[len(d.Loads)-1].Return_distance)
 	return cost
@@ -133,6 +139,14 @@ func Init_Driver() Driver {
 		Curr_Position: Home_Point,
 		Route:         make([]int, 0),
 	}
+}
+
+func (d Driver) Print_Driver() {
+	fmt.Print("driver x ")
+	fmt.Println(" Loads legnth = ", len(d.Loads))
+	fmt.Println("loads = ", d.Loads.String())
+	fmt.Println(" time left = ", d.Time_left)
+
 }
 
 // Gets cost of fleet and driving time

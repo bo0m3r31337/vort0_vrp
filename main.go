@@ -2,7 +2,6 @@ package main
 
 import (
 	"os"
-	"sort"
 )
 
 // slice of loads to complete
@@ -28,13 +27,6 @@ func main() {
 	Populate_Matrix()
 	// solve Vehicle Routing Problem
 	VRP_Solve()
-	// sort and reduce drivers with 1 load if possible
-	for x := 3; x != 0; x-- {
-		sort.Sort(Armada.Drivers)
-		Reduce_Drivers()
-		// permute existing schedule if the schedule per driver is lower
-		Armada.Permute_Schedule()
-	}
 	// PRINT TO STD OUT
 	Armada.Print()
 }
@@ -46,35 +38,29 @@ func VRP_Solve() {
 		if err != 0 {
 			break
 		}
-		x -= len(driver.Route)
-		Armada.Docked = append(Armada.Docked, driver)
+		x -= len(driver.Loads)
 		Armada.Drivers = append(Armada.Drivers, driver)
-		sort.Sort(Armada.Drivers)
-		Reduce_Drivers()
 	}
 }
 
 func Generate_Route_for_New_Driver() (Driver, int) {
 	driver := Init_Driver()
 	// find first load
-	for i := 0; i <= len(Loads)-1; i++ {
-		if Loads[i].Completed {
-			continue
-		}
-		driver.Route = append(driver.Route, Loads[i].Number)
-		driver.Loads = append(driver.Loads, *Loads[i])
-		driver.Time_left += Loads[i].Distance_from_depot + Loads[i].Distance
-		Loads[i].Complete()
-		driver.Curr_Position = Loads[i].Dropoff
-		break
-	}
-	if len(driver.Loads) == 0 {
+	init_load, _ := find_closest_load_from_depot()
+	// if no loads exist then
+	if init_load == -1 {
 		return driver, -1
 	}
+	driver.Route = append(driver.Route, Loads[init_load].Number)
+	driver.Loads = append(driver.Loads, *Loads[init_load])
+	driver.Time_left += Loads[init_load].Distance_from_depot + Loads[init_load].Distance
+	Loads[init_load].Complete()
+	driver.Curr_Position = Loads[init_load].Dropoff
 	// if driver and take another load get next load
 	next_load, distance_to_pickup := driver.Loads[len(driver.Loads)-1].Return_min_Load_Not_Completed(driver.Time_left)
-	// if no load is available return
+	//if no next load is avaiable to return
 	if next_load == -1 {
+		driver.Time_left += driver.Loads[len(driver.Loads)-1].Return_distance
 		return driver, 0
 	}
 	// else add more loads
@@ -85,10 +71,40 @@ func Generate_Route_for_New_Driver() (Driver, int) {
 		Loads[next_load].Complete()
 		driver.Curr_Position = Loads[next_load].Dropoff
 		next_load, distance_to_pickup = driver.Loads[len(driver.Loads)-1].Return_min_Load_Not_Completed(driver.Time_left)
-		// if no load exists break and return
+		// if no load can fit into their schedule or there is no more loads left then break from this and return to the depot
 		if next_load == -1 {
 			break
 		}
 	}
+	// return driver to depot
+	if driver.Time_left+driver.Loads[len(driver.Loads)-1].Return_distance > 720.0 {
+		//remove the load from schedule
+		Loads[driver.Loads[len(driver.Loads)-1].Number].UnComplete()
+		if len(driver.Loads) > 0 {
+			driver.Loads = driver.Loads[:len(driver.Loads)-1]
+		}
+	}
+	// return driver to depot
+	driver.Time_left += driver.Loads[len(driver.Loads)-1].Return_distance
 	return driver, 0
+}
+
+func find_closest_load_from_depot() (int, float64) {
+	min_dist := -1.0
+	load_num := -1
+	for i := 0; i <= len(Loads)-1; i++ {
+		if Loads[i].Completed {
+			continue
+		}
+		if min_dist < 0 && !Loads[i].Completed {
+			min_dist = Loads[i].Distance_from_depot
+			load_num = i
+			continue
+		}
+		if Loads[i].Distance_from_depot < min_dist && !Loads[i].Completed {
+			min_dist = Loads[i].Distance_from_depot
+			load_num = i
+		}
+	}
+	return load_num, min_dist
 }
