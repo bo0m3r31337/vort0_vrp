@@ -48,7 +48,7 @@ func Generate_Route_for_New_Driver() (Driver, int) {
 	// find first load
 	init_load, _ := find_closest_load_from_depot()
 	// if no loads exist then return -1
-	if init_load == -1 {
+	if init_load == -1 || driver.Time_left+Loads[init_load].Distance+Loads[init_load].Distance_from_depot+Loads[init_load].Return_distance > 720 {
 		return driver, -1
 	}
 	driver.Route = append(driver.Route, Loads[init_load].Number)
@@ -96,12 +96,12 @@ func find_closest_load_from_depot() (int, float64) {
 		if Loads[i].Completed {
 			continue
 		}
-		if min_dist < 0 && !Loads[i].Completed && 0.0+Loads[i].Return_distance+Loads[i].Dropoff_to_pickup_dists[i]+Loads[i].Distance < 720 {
+		if min_dist < 0 && !Loads[i].Completed {
 			min_dist = Loads[i].Distance_from_depot
 			load_num = i
 			continue
 		}
-		if Loads[i].Distance_from_depot < min_dist && !Loads[i].Completed && 0.0+Loads[i].Return_distance+Loads[i].Dropoff_to_pickup_dists[i]+Loads[i].Distance < 720 {
+		if Loads[i].Distance_from_depot < min_dist && !Loads[i].Completed {
 			min_dist = Loads[i].Distance_from_depot
 			load_num = i
 		}
