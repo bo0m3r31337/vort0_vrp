@@ -96,12 +96,12 @@ func find_closest_load_from_depot() (int, float64) {
 		if Loads[i].Completed {
 			continue
 		}
-		if min_dist < 0 && !Loads[i].Completed {
+		if min_dist < 0 && !Loads[i].Completed && 0.0+Loads[i].Return_distance+Loads[i].Dropoff_to_pickup_dists[i]+Loads[i].Distance < 720 {
 			min_dist = Loads[i].Distance_from_depot
 			load_num = i
 			continue
 		}
-		if Loads[i].Distance_from_depot < min_dist && !Loads[i].Completed {
+		if Loads[i].Distance_from_depot < min_dist && !Loads[i].Completed && 0.0+Loads[i].Return_distance+Loads[i].Dropoff_to_pickup_dists[i]+Loads[i].Distance < 720 {
 			min_dist = Loads[i].Distance_from_depot
 			load_num = i
 		}
