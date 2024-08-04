@@ -46,7 +46,7 @@ func VRP_Solve() {
 func Generate_Route_for_New_Driver() (Driver, int) {
 	driver := Init_Driver()
 	// find first load
-	init_load, _ := find_closest_load_from_depot()
+	init_load := find_init_load()
 	// if no loads exist then return -1
 	if init_load == -1 {
 		return driver, -1
@@ -58,7 +58,7 @@ func Generate_Route_for_New_Driver() (Driver, int) {
 	driver.Curr_Position = Loads[init_load].Dropoff
 	//take another load
 	next_load, distance_to_pickup := driver.Loads[len(driver.Loads)-1].Return_min_Load_Not_Completed(driver.Time_left)
-	//if no next load is avaiable to return with the time limit the return the driver to the depot
+	//if no next load is avaiable to return within the time limit then return the driver to the depot
 	if next_load == -1 {
 		driver.Time_left += driver.Loads[len(driver.Loads)-1].Return_distance
 		return driver, 0
@@ -87,6 +87,18 @@ func Generate_Route_for_New_Driver() (Driver, int) {
 	//other wise return driver to depot
 	driver.Time_left += driver.Loads[len(driver.Loads)-1].Return_distance
 	return driver, 0
+}
+
+func find_init_load() int {
+	load_num := -1
+	for i := 0; i <= len(Loads)-1; i++ {
+		if Loads[i].Completed {
+			continue
+		} else {
+			return i
+		}
+	}
+	return load_num
 }
 
 func find_closest_load_from_depot() (int, float64) {
